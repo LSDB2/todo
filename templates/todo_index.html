@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+      <link href="http://cdn.bootcss.com/bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>所有 TODO</title>
+    <script src="http://cdn.bootcss.com/jquery/3.1.0/jquery.js"></script>
+    <style>
+        .status-active{
+        }
+
+        .status-done {
+            text-decoration: line-through;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+        <textarea id="id-input-content" type="text" name="content" style="height:50px;width:925px;"></textarea>
+        <button id="id-button-add" class="btn btn-large btn-block btn-primary" type="submit">创建新 Todo</button>
+
+    {{todos}}
+
+    <script>
+        var log = function(){
+          console.log(arguments)
+        }
+
+        var insertTodo = function(todo) {
+            var id = todo.id
+            var content = todo.content
+            var time = todo.created_time
+            var template = `
+                <p class="status-active">
+                ${id} ${content}@${time}<a href="/todo/complete?id=${id}">完成</a><a href="/todo/complete?id=${id}">修改</a>
+                <a href="/todo/complete?id=${id}">删除</a>
+                </p>
+            `;
+            log('模板字符串', template)
+            $('body').append(template)
+        }
+
+        var sendAddRequest = function(content){
+            log('sendAddRequest', content)
+            var todo = {
+                content: content,
+            }
+            // 构造一个请求
+            var request = {
+                url: '/api/todo/add',
+                type: 'post',
+                data: todo,
+                success: function(r){
+                    log('成功', r)
+                    var todo = JSON.parse(r)
+                    log('todo, ', todo)
+                    insertTodo(todo)
+                },
+                error: function(err){
+                    log('失败', err)
+                }
+            }
+            // 发送这个请求
+            jQuery.ajax(request)
+        }
+
+        $('#id-button-add').on('click', function(){
+            // log('点击到了 button')
+            var content = $('#id-input-content').val()
+            sendAddRequest(content)
+        })
+    </script>
+</div>
+</body>
+</html>
